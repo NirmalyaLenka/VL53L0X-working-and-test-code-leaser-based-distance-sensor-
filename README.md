@@ -13,6 +13,7 @@ Measure precise distances from 30 mm up to 2000 mm using the VL53L0X Time-of-Fli
 | VL53L0X Sensor Module | 1 |
 | Jumper Wires | 4 |
 | Breadboard (optional) | 1 |
+ <img width="294" height="294" alt="image" src="https://github.com/user-attachments/assets/a0fb3ac6-48df-4890-ae96-909a68f2c5be" /> VL53L0X
 
 ---
 
