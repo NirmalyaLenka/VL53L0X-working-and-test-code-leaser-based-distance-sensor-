@@ -1,266 +1,93 @@
-# VL53L0X-working-and-test-code-leaser-based-distance-sensor-
 # ESP32 + VL53L0X Time-of-Flight Distance Sensor
 
-Measure precise distances from 30 mm up to 2000 mm using the VL53L0X Time-of-Flight laser ranging sensor with an ESP32 microcontroller. The sensor outputs distance in millimeters, centimeters, meters, and inches, and classifies the proximity zone of the detected object.
-
----
-
-## Components Required
-
-| Component | Quantity |
-|-----------|----------|
-| ESP32 Dev Board | 1 |
-| VL53L0X Sensor Module | 1 |
-| Jumper Wires | 4 |
-| Breadboard (optional) | 1 |
- <img width="294" height="294" alt="image" src="https://github.com/user-attachments/assets/a0fb3ac6-48df-4890-ae96-909a68f2c5be" /> VL53L0X
-
----
-
-## Wiring Diagram
-
-```
-VL53L0X         ESP32
--------         -----
-VCC    -------> 3.3V
-GND    -------> GND
-SDA    -------> GPIO 21
-SCL    -------> GPIO 22
-XSHUT  -------> GPIO 4   (optional - for hardware reset)
-GPIO1  -------> GPIO 5   (optional - for interrupt mode)
-```
-
-The XSHUT and GPIO1 pins are optional. If you are using only one sensor, you can leave them unconnected. XSHUT is used to reset the sensor or manage multiple sensors on the same I2C bus by enabling them one at a time.
-
----
-
-## Setup and Installation
-
-### 1. Install Arduino IDE
-
-Download from https://www.arduino.cc/en/software
-
-### 2. Add ESP32 Board Support
-
-1. Open Arduino IDE and go to File > Preferences
-2. Add the following URL to Additional Boards Manager URLs:
-   ```
-   https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-   ```
-3. Go to Tools > Board > Boards Manager
-4. Search for esp32 and click Install
-
-### 3. Install Required Library
-
-1. Go to Sketch > Include Library > Manage Libraries
-2. Search for Adafruit VL53L0X
-3. Install "Adafruit VL53L0X" by Adafruit
-4. Also install "Adafruit BusIO" if prompted as a dependency
-
-### 4. Upload the Sketch
-
-1. Open vl53l0x_esp32.ino in Arduino IDE
-2. Select your board: Tools > Board > ESP32 Dev Module
-3. Select the correct port: Tools > Port
-4. Click Upload
-
----
-
-## Serial Monitor Output
-
-Open Serial Monitor at 115200 baud to see live readings.
-
-```
-=================================
-  ESP32 + VL53L0X Sensor Demo
-=================================
-VL53L0X initialized successfully.
-Sensor Mode : Single Ranging
-I2C Address : 0x29 (default)
----------------------------------
-
---- VL53L0X Readings ---
-Distance    : 243 mm
-            : 24.3 cm
-            : 0.243 m
-            : 9.57 inches
-Proximity   : CLOSE       (< 30 cm)
-Range Status: OK (0)
-------------------------
-
---- VL53L0X Readings ---
-Distance    : OUT OF RANGE
-Proximity   : No object detected
-Range Status: Phase failure (4) - target too far or absent
-------------------------
-```
-
----
-
-## Configuration
-
-### Distance Thresholds
-
-Adjust these values in the code to match your use case:
-
-```cpp
-#define DISTANCE_VERY_CLOSE   100   // Less than 10 cm
-#define DISTANCE_CLOSE        300   // Less than 30 cm
-#define DISTANCE_MEDIUM       600   // Less than 60 cm
-#define DISTANCE_FAR         1200   // Less than 120 cm
-```
-
-### Range Status Codes
-
-| Status Code | Meaning |
-|-------------|---------|
-| 0 | Valid measurement |
-| 1 | Sigma failure - low signal quality |
-| 2 | Signal failure - target too reflective |
-| 4 | Phase failure - out of range or no target |
-
----
+An Arduino example that reads distance from an ST VL53L0X time-of-flight (ToF) sensor over I2C and prints the result in millimetres, centimetres, metres, and inches. It also assigns a coarse proximity label and reports the sensor's range status.
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| Multi-unit Output | Distance in mm, cm, m, and inches |
-| Proximity Label | Classifies distance zone (Very Close to Very Far) |
-| Range Status | Reports sensor measurement quality |
-| Out of Range Handling | Detects and reports when no target is present |
-| I2C Interface | Simple 2-wire connection on GPIO 21 and 22 |
+- Single-shot distance measurements
+- Multiple distance units
+- Configurable proximity thresholds
+- Basic handling of the library's phase-failure status
+- Serial output for bench testing
 
----
+The advertised range of up to 2 m depends on target reflectivity, ambient light, module optics, and operating conditions. A failed range status does not always mean there is no object; it can also indicate insufficient signal quality or a target outside the useful range.
 
-## Possible Projects Using This Sensor
+## Hardware and wiring
 
-The VL53L0X is a high-accuracy, compact distance sensor suited for projects where ultrasonic sensors are too slow or too large.
+| VL53L0X module | ESP32 |
+| --- | --- |
+| VIN/VCC | 3.3 V for this example; follow the exact breakout documentation |
+| GND | GND |
+| SDA | GPIO 21 |
+| SCL | GPIO 22 |
 
+The firmware initializes I2C with `Wire.begin(21, 22)`. XSHUT and GPIO1 are not used by this sketch and may be left unconnected for a single-sensor test.
 
-### Beginner
+**Voltage warning:** Breakout boards differ. Confirm the module's input-voltage and I2C logic specifications before wiring; do not assume every board is 5 V tolerant.
 
-**Smart Dustbin Lid**
-Detect when a hand approaches within 10 cm and trigger a servo motor to open the bin lid automatically. The lid closes after a set delay once the hand is removed.
+## Bill of materials
 
-**Liquid Level Monitor**
-Mount the sensor above a water tank or container facing downward. Calculate the liquid level by subtracting the measured distance from the known tank height. Send alerts when the level drops below a threshold.
+| Item | Qty. | Notes |
+| --- | ---: | --- |
+| ESP32 development board | 1 | Classic ESP32 pin mapping |
+| VL53L0X breakout module | 1 | Confirm the module's voltage requirements |
+| Jumper wires | 4 | VCC, GND, SDA, SCL |
+| USB data cable | 1 | Upload and Serial Monitor |
+| Breadboard | 1, optional | For prototyping |
 
-**Touchless Button**
-Replace a physical push button with the VL53L0X. When a finger is detected within a set distance, register it as a button press. Useful for hygiene-sensitive environments.
+XSHUT and GPIO1 are optional for the current firmware. Multiple sensors on the same I2C bus require separate XSHUT control and address-management logic, which this sketch does not implement.
 
-**Proximity-Based Screen Dimmer**
-Connect the ESP32 to a display. When no one is within 50 cm, dim or turn off the screen. When someone approaches, wake it up instantly.
+## Software setup
 
+1. Install the [Arduino IDE](https://www.arduino.cc/en/software).
+2. Install ESP32 board support using Espressif's package URL:
+   `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
+3. Install **Adafruit VL53L0X** through Library Manager and allow its dependencies to install.
+4. Open `vL53L0X.ino`.
+5. Select the correct ESP32 board and serial port, then compile and upload.
+6. Open Serial Monitor at **115200 baud**.
 
-### Intermediate
+## Configuration
 
-**Obstacle-Avoiding Robot**
-Mount the sensor on a robot car facing forward. When an obstacle is detected under 20 cm, stop the motors, turn, and continue. ToF provides faster and more accurate readings than ultrasonic sensors.
+Thresholds are defined near the top of `vL53L0X.ino`:
 
-**People Counter with Height Filter**
-Mount the sensor at a doorway facing downward from a fixed height. Measure the distance to passing people versus the empty floor distance to count entries. The height difference helps filter out small objects.
+```cpp
+#define DISTANCE_VERY_CLOSE 100
+#define DISTANCE_CLOSE      300
+#define DISTANCE_MEDIUM     600
+#define DISTANCE_FAR       1200
+```
 
-**Stair Safety Alert for the Elderly**
-Place the sensor near the top of a staircase. If a person steps too close to the edge without the handrail being gripped (combined with another sensor), trigger a buzzer or alert.
+Values are in millimetres. Adjust them for your application. The current code treats `RangeStatus != 4` as a usable reading, which is a simplified check; applications requiring robust measurement quality should review the library's status codes and reject all invalid measurement states supported by the installed library version.
 
-**Drone Landing Assistance**
-Use the VL53L0X on the underside of a small drone to measure altitude from the ground during landing. Feed data to the flight controller for a controlled, soft touchdown.
+## Repository structure
 
+```text
+VL53L0X-working-and-test-code-leaser-based-distance-sensor-/
+├── README.md               # Setup, wiring, BOM, thresholds, and limitations
+├── VL53L0X DATA SHEET.pdf  # Sensor reference document
+└── vL53L0X.ino              # Main ESP32 Arduino sketch
+```
 
-### Advanced
-
-**Gesture Recognition System**
-Read distance values at high frequency and analyze the speed and direction of hand movements. Classify gestures such as swipe left, swipe right, push, and pull to control devices wirelessly.
-
-**1D Scanner or Profiler**
-Mount the sensor on a servo motor. Rotate the servo in small steps and record distance at each angle. Plot the data to build a basic 2D profile or map of the surrounding environment.
-
-**Multi-Sensor Array for Object Shape Detection**
-Wire multiple VL53L0X sensors on the same I2C bus using XSHUT pins to enable them one at a time with different I2C addresses. Measure distance at multiple points simultaneously to detect the rough shape or width of objects passing by.
-
-**Industrial Part Presence Verification**
-On a production line, mount the sensor at a fixed point and measure distance to a reference surface. If a part is correctly placed, the distance changes by a predictable amount. Trigger a pass or fail output accordingly.
-
----
+The sketch remains at the root for direct opening in Arduino IDE. If reorganized later, place it in a directory matching the sketch's primary filename.
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| Sensor not found on startup | Check SDA on GPIO 21 and SCL on GPIO 22; verify 3.3V power |
-| Always reads OUT OF RANGE | Target surface may be too dark, angled, or beyond 2000 mm |
-| Unstable or jumping readings | Reduce ambient IR interference; avoid direct sunlight on sensor |
-| Multiple sensors not working | Use XSHUT to enable sensors one at a time and assign unique I2C addresses |
-| Board not detected by PC | Install CP210x or CH340 USB driver for your ESP32 board |
+| Symptom | Checks |
+| --- | --- |
+| Sensor not detected | Verify power, ground, SDA GPIO 21, and SCL GPIO 22 |
+| Always out of range | Check target distance, angle, reflectivity, and ambient IR |
+| Readings jump | Stabilize the target and avoid direct strong sunlight where possible |
+| Compile failure | Confirm ESP32 core and Adafruit VL53L0X library versions |
 
----
+## Skills and technologies
 
-## Project Structure
+`ESP32` · `Arduino C++` · `I2C` · `Time-of-Flight sensing` · `Distance measurement`
 
-```
-esp32-vl53l0x/
-|
-|-- vl53l0x_esp32.ino   # Main Arduino sketch
-|-- README.md           # This file
-```
+## Maintenance & audit
 
----
-
-## Resources
-
-- Adafruit VL53L0X Library: https://github.com/adafruit/Adafruit_VL53L0X
-- VL53L0X Datasheet: https://www.st.com/resource/en/datasheet/vl53l0x.pdf
-- ESP32 I2C Reference: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/i2c.html
-
----
-
-## License
-
-This project is open source and available under the MIT License.
-
----
-
-## Contributing
-
-Pull requests are welcome. Feel free to open an issue for bugs, improvements, or new project ideas.
-
----
-
-## Topics
-
-esp32  vl53l0x  time-of-flight  tof  distance-sensor  laser  i2c  arduino  iot  embedded  robotics
-
----
-
-## How It Works
-
-The VL53L0X uses Time-of-Flight (ToF) technology to measure distance. Internally, the sensor contains a 940 nm infrared VCSEL laser emitter and a SPAD (Single Photon Avalanche Diode) array receiver built into a single compact module by STMicroelectronics.
-
-When a measurement is triggered, the laser emits a very short pulse of infrared light. This pulse travels through the air, strikes the target surface, and reflects back toward the sensor. The SPAD array detects the returning photons and the internal processing unit measures the exact time elapsed between emission and reception. Since the speed of light is a known constant, the sensor calculates distance using the formula:
-
-```
-Distance = (Speed of Light x Time of Flight) / 2
-```
-
-The division by 2 accounts for the round trip the light pulse makes. This entire process happens in microseconds and is repeated many times per measurement cycle to average out noise and improve accuracy.
-
-Unlike ultrasonic sensors that emit broad sound waves and are affected by temperature and humidity, the VL53L0X laser beam is narrow and precise, giving it accurate readings on small targets and at faster update rates. The sensor communicates the final distance value over the I2C bus to the ESP32, which reads it using the Adafruit VL53L0X library.
-
-The typical measurement range is 30 mm to 2000 mm, with accuracy of plus or minus 3 percent under normal indoor conditions. Performance can vary based on the reflectivity and color of the target surface, ambient light levels, and the angle at which the beam strikes the object.
-
-
----
-
-## Skills & technologies
-
-[![C++](https://img.shields.io/badge/C%2B%2B-00599C?logo=cplusplus&logoColor=white)](https://github.com/NirmalyaLenka/VL53L0X-working-and-test-code-leaser-based-distance-sensor-)
-
-
-## Maintenance & Audit
-
-- **Audit date:** 10 November 2026
-- **Documentation status:** README reviewed and audit record added on this date.
-- **Scope and evidence:** This entry records a documentation-level maintenance pass. It does not by itself establish that source code compiles, dependencies are current, security has been tested, or hardware/runtime behavior has been verified.
-- **Code and tests:** No new functional code changes or test results are claimed by this README update. Run the project-specific build, test, and hardware/runtime checks before relying on it.
-- **Maintenance baseline:** Documentation status recorded through 10 November 2026; revisit dependencies, setup instructions, known limitations, and tests whenever the project changes.
+- **Last updated:** 10 November 2026
+- **Review scope:** Checked the sketch name, pin map, threshold definitions, setup instructions, BOM, and repository paths.
+- **Documentation changes:** Corrected the sketch path and clarified the scope of range-status handling and multi-sensor limitations.
+- **Firmware status:** No firmware change was made; the current status handling needs a deliberate review before use in a safety-relevant application. No compilation or hardware test was run.
+- **License:** No `LICENSE` file was found in the current root listing; no specific reuse license is claimed here.
