@@ -252,6 +252,11 @@ The typical measurement range is 30 mm to 2000 mm, with accuracy of plus or minu
 
 ---
 
+## Skills & technologies
+
+[![C++](https://img.shields.io/badge/C%2B%2B-00599C?logo=cplusplus&logoColor=white)](https://github.com/NirmalyaLenka/VL53L0X-working-and-test-code-leaser-based-distance-sensor-)
+
+
 ## Maintenance & Audit
 
 - **Audit date:** 10 November 2026
