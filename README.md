@@ -86,7 +86,7 @@ The sketch remains at the root for direct opening in Arduino IDE. If reorganized
 
 ## Maintenance & audit
 
-- **Last updated:** 10 November 2026
+- **Last updated:** 11 November 2026
 - **Review scope:** Checked the sketch name, pin map, threshold definitions, setup instructions, BOM, and repository paths.
 - **Documentation changes:** Corrected the sketch path and clarified the scope of range-status handling and multi-sensor limitations.
 - **Firmware status:** No firmware change was made; the current status handling needs a deliberate review before use in a safety-relevant application. No compilation or hardware test was run.
