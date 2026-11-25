@@ -91,3 +91,9 @@ The sketch remains at the root for direct opening in Arduino IDE. If reorganized
 - **Documentation changes:** Corrected the sketch path and clarified the scope of range-status handling and multi-sensor limitations.
 - **Firmware status:** No firmware change was made; the current status handling needs a deliberate review before use in a safety-relevant application. No compilation or hardware test was run.
 - **License:** No `LICENSE` file was found in the current root listing; no specific reuse license is claimed here.
+
+## Contact
+
+Maintained up to 25 November 2026.
+
+If you encounter any problems, please contact [carmodbhai@gmail.com](mailto:carmodbhai@gmail.com).
